@@ -121,4 +121,5 @@ uniform UniformBlock{
     mat4 uniform_shadow_projection_inverse;
     mat4 uniform_shadow_model_view;
     mat4 uniform_shadow_model_view_inverse;
+    mat4 _gl_ModelViewProjection;
 };

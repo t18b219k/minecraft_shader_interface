@@ -1,0 +1,4 @@
+/target
+Cargo.lock
+.idea
+minecraft_shader_interface.iml

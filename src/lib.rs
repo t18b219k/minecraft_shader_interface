@@ -1,4 +1,3 @@
-
 //! export minecraft shader to any app
 //!
 //! * first we must replace # version xxx to #version 450
@@ -10,8 +9,10 @@
 //! * attach uniform and buffer definitions
 //! * MRT and gl_FragColor to e.g out vec4 _gl_FragColor
 //! * rename all optifine defined uniform and attributes from camelCase to snake_case
-pub mod shader_parameter;
+pub mod attribute_varying_transformer;
+pub mod function_rename;
 pub mod render_stage;
+pub mod shader_parameter;
 
 #[cfg(test)]
 mod tests {
