@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::ops::{Add, Range};
-use std::str::FromStr;
 use std::option::Option::Some;
+use std::str::FromStr;
 
 /// convert attribute <type> <identifier>;->
 /// location() in <type> identifier;
@@ -167,12 +167,11 @@ impl AttributeTransformer {
 fn test() {
     let test_source = include_str!("test_attribute.glsl");
     let mut transformer = AttributeTransformer::new(test_source);
-    let (source,locations_vertex_input) = transformer.convert();
+    let (source, locations_vertex_input) = transformer.convert();
     println!("output source:\n{}", source);
-    let mut transformer= VaryingTransformer::new(source);
-    let (source,locations_vertex_output)=transformer.convert(ShaderType::Vertex);
-    println!("output source:\n{}",source);
-
+    let mut transformer = VaryingTransformer::new(source);
+    let (source, locations_vertex_output) = transformer.convert(ShaderType::Vertex);
+    println!("output source:\n{}", source);
 }
 pub struct VaryingTransformer<'a> {
     source: String,
@@ -189,7 +188,7 @@ pub enum ShaderType {
     Vertex,
 }
 impl<'a> VaryingTransformer<'a> {
-    pub fn new<Source:AsRef<str>>(source:Source) -> Self {
+    pub fn new<Source: AsRef<str>>(source: Source) -> Self {
         let regex=regex::Regex::new(r"varying\s+(?P<type>[a-zA-Z_][a-zA-Z0-9_]*?)\s+(?P<var_name>[a-z-A-Z_][a-zA-Z0-9_]*?)\s*;").unwrap();
         let regex_array=regex::Regex::new(r"varying\s+(?P<type>[a-zA-Z_][a-zA-Z0-9_]*?)\s+(?P<var_name>[a-z-A-Z_][a-zA-Z0-9_]*?)\s*\[\s*(?P<length>[0-9]+?)\s*\];").unwrap();
         let flat_regex=regex::Regex::new(r"flat\s+varying\s+(?P<type>[a-zA-Z_][a-zA-Z0-9_]*?)\s+(?P<var_name>[a-z-A-Z_][a-zA-Z0-9_]*?)\s*;").unwrap();
@@ -213,7 +212,7 @@ impl<'a> VaryingTransformer<'a> {
         let mut line_vec = vec![];
         let io = self.io_definition.get(&shader_type).unwrap();
         for line in lines {
-            if let Some(captures)=self.flat_regex.captures(line){
+            if let Some(captures) = self.flat_regex.captures(line) {
                 let ty = captures.name("type");
                 let var_name = captures.name("var_name");
                 // validate declaration
@@ -242,8 +241,7 @@ impl<'a> VaryingTransformer<'a> {
                     locations.push(location);
                     self.current_location += 1;
                 }
-            }
-            else if let Some(captures)=self.flat_regex_array.captures(line){
+            } else if let Some(captures) = self.flat_regex_array.captures(line) {
                 let ty = captures.name("type");
                 let var_name = captures.name("var_name");
                 let length = captures.name("length");
@@ -273,8 +271,7 @@ impl<'a> VaryingTransformer<'a> {
                     locations.push(location);
                     self.current_location += len;
                 }
-            }
-            else if let Some(captures) = self.regex.captures(line) {
+            } else if let Some(captures) = self.regex.captures(line) {
                 let ty = captures.name("type");
                 let var_name = captures.name("var_name");
                 // validate declaration

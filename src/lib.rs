@@ -10,10 +10,11 @@
 //! * MRT and gl_FragColor to e.g out vec4 _gl_FragColor
 //! * rename all optifine defined uniform and attributes from camelCase to snake_case
 pub mod attribute_varying_transformer;
+pub mod directive_rewrite;
 pub mod function_rename;
 pub mod render_stage;
 pub mod shader_parameter;
-pub mod directive_rewrite;
+pub mod uniforms;
 
 #[cfg(test)]
 mod tests {
@@ -22,4 +23,3 @@ mod tests {
         assert_eq!(2 + 2, 4);
     }
 }
-pub struct Converter {}
