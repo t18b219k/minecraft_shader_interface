@@ -1,4 +1,5 @@
 #version 120
+#extension GL_EXT_gpu_shader4 : enable
 //auto attribute location
 attribute vec4 position;//0
 attribute vec3 normal;//1

@@ -13,6 +13,7 @@ pub mod attribute_varying_transformer;
 pub mod function_rename;
 pub mod render_stage;
 pub mod shader_parameter;
+pub mod directive_rewrite;
 
 #[cfg(test)]
 mod tests {
