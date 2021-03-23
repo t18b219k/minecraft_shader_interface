@@ -14,6 +14,7 @@ pub mod directive_rewrite;
 pub mod function_rename;
 pub mod render_stage;
 pub mod shader_parameter;
+pub mod uniform_name_conversion;
 pub mod uniforms;
 
 #[cfg(test)]
