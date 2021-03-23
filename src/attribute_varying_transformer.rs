@@ -1,5 +1,7 @@
+use std::collections::HashMap;
 use std::ops::{Add, Range};
 use std::str::FromStr;
+use std::option::Option::Some;
 
 /// convert attribute <type> <identifier>;->
 /// location() in <type> identifier;
@@ -101,7 +103,7 @@ impl AttributeTransformer {
                     println!("{} {}", ty.as_str(), var_name.as_str());
                     //
                     let replacer = format!(
-                        "location({}) in {} {};\n",
+                        "layout (location={}) in {} {};\n",
                         self.current_location,
                         ty.as_str(),
                         var_name.as_str()
@@ -130,7 +132,7 @@ impl AttributeTransformer {
                     println!("{} {}", ty.as_str(), var_name.as_str());
                     //
                     let replacer = format!(
-                        "location({}) in {} {}[{}];\n",
+                        "layout (location={}) in {} {}[{}];\n",
                         self.current_location,
                         ty.as_str(),
                         var_name.as_str(),
@@ -165,6 +167,183 @@ impl AttributeTransformer {
 fn test() {
     let test_source = include_str!("test_attribute.glsl");
     let mut transformer = AttributeTransformer::new(test_source);
-    let x = transformer.convert();
-    println!("output source:\n{}", x.0);
+    let (source,locations_vertex_input) = transformer.convert();
+    println!("output source:\n{}", source);
+    let mut transformer= VaryingTransformer::new(source);
+    let (source,locations_vertex_output)=transformer.convert(ShaderType::Vertex);
+    println!("output source:\n{}",source);
+
+}
+pub struct VaryingTransformer<'a> {
+    source: String,
+    current_location: usize,
+    regex: regex::Regex,
+    regex_array: regex::Regex,
+    flat_regex: regex::Regex,
+    flat_regex_array: regex::Regex,
+    io_definition: HashMap<ShaderType, &'a str>,
+}
+#[derive(Hash, Ord, PartialOrd, Eq, PartialEq, Debug, Copy, Clone)]
+pub enum ShaderType {
+    Fragment,
+    Vertex,
+}
+impl<'a> VaryingTransformer<'a> {
+    pub fn new<Source:AsRef<str>>(source:Source) -> Self {
+        let regex=regex::Regex::new(r"varying\s+(?P<type>[a-zA-Z_][a-zA-Z0-9_]*?)\s+(?P<var_name>[a-z-A-Z_][a-zA-Z0-9_]*?)\s*;").unwrap();
+        let regex_array=regex::Regex::new(r"varying\s+(?P<type>[a-zA-Z_][a-zA-Z0-9_]*?)\s+(?P<var_name>[a-z-A-Z_][a-zA-Z0-9_]*?)\s*\[\s*(?P<length>[0-9]+?)\s*\];").unwrap();
+        let flat_regex=regex::Regex::new(r"flat\s+varying\s+(?P<type>[a-zA-Z_][a-zA-Z0-9_]*?)\s+(?P<var_name>[a-z-A-Z_][a-zA-Z0-9_]*?)\s*;").unwrap();
+        let flat_regex_array=regex::Regex::new(r"flat\s+varying\s+(?P<type>[a-zA-Z_][a-zA-Z0-9_]*?)\s+(?P<var_name>[a-z-A-Z_][a-zA-Z0-9_]*?)\s*\[\s*(?P<length>[0-9]+?)\s*\];").unwrap();
+        let mut io_definition = HashMap::new();
+        io_definition.insert(ShaderType::Vertex, "out");
+        io_definition.insert(ShaderType::Fragment, "in");
+        Self {
+            source: source.as_ref().to_string(),
+            current_location: 0,
+            regex,
+            regex_array,
+            flat_regex,
+            flat_regex_array,
+            io_definition,
+        }
+    }
+    pub fn convert(&mut self, shader_type: ShaderType) -> (String, Vec<Location>) {
+        let mut locations = vec![];
+        let lines = self.source.lines();
+        let mut line_vec = vec![];
+        let io = self.io_definition.get(&shader_type).unwrap();
+        for line in lines {
+            if let Some(captures)=self.flat_regex.captures(line){
+                let ty = captures.name("type");
+                let var_name = captures.name("var_name");
+                // validate declaration
+                if ty.is_some() && var_name.is_some() {
+                    let ty = ty.unwrap();
+                    let var_name = var_name.unwrap();
+
+                    println!("{} {}", ty.as_str(), var_name.as_str());
+                    //
+                    let replacer = format!(
+                        "flat layout (location={}) {} {} {};\n",
+                        self.current_location,
+                        io,
+                        ty.as_str(),
+                        var_name.as_str()
+                    );
+                    println!("{}", replacer);
+                    // emit line
+                    line_vec.push(replacer);
+                    // emit location
+                    let location = Location::from_ty_name_location(
+                        var_name.as_str(),
+                        self.current_location..self.current_location + 1,
+                        ty.as_str(),
+                    );
+                    locations.push(location);
+                    self.current_location += 1;
+                }
+            }
+            else if let Some(captures)=self.flat_regex_array.captures(line){
+                let ty = captures.name("type");
+                let var_name = captures.name("var_name");
+                let length = captures.name("length");
+                // validate declaration
+                if ty.is_some() && var_name.is_some() && length.is_some() {
+                    let ty = ty.unwrap();
+                    let var_name = var_name.unwrap();
+                    let length = length.unwrap();
+                    println!("{} {}", ty.as_str(), var_name.as_str());
+                    //
+                    let replacer = format!(
+                        "flat layout (location={}) {} {} {}[{}];\n",
+                        self.current_location,
+                        io,
+                        ty.as_str(),
+                        var_name.as_str(),
+                        length.as_str()
+                    );
+                    println!("{}", replacer);
+                    // emit line
+                    line_vec.push(replacer);
+                    // emit location
+                    let len = usize::from_str(length.as_str()).unwrap();
+                    let range = self.current_location..self.current_location + len;
+                    let location =
+                        Location::from_ty_name_location(var_name.as_str(), range, ty.as_str());
+                    locations.push(location);
+                    self.current_location += len;
+                }
+            }
+            else if let Some(captures) = self.regex.captures(line) {
+                let ty = captures.name("type");
+                let var_name = captures.name("var_name");
+                // validate declaration
+                if ty.is_some() && var_name.is_some() {
+                    let ty = ty.unwrap();
+                    let var_name = var_name.unwrap();
+
+                    println!("{} {}", ty.as_str(), var_name.as_str());
+                    //
+                    let replacer = format!(
+                        "layout (location={}) {} {} {};\n",
+                        self.current_location,
+                        io,
+                        ty.as_str(),
+                        var_name.as_str()
+                    );
+                    println!("{}", replacer);
+                    // emit line
+                    line_vec.push(replacer);
+                    // emit location
+                    let location = Location::from_ty_name_location(
+                        var_name.as_str(),
+                        self.current_location..self.current_location + 1,
+                        ty.as_str(),
+                    );
+                    locations.push(location);
+                    self.current_location += 1;
+                }
+            } else if let Some(captures) = self.regex_array.captures(line) {
+                let ty = captures.name("type");
+                let var_name = captures.name("var_name");
+                let length = captures.name("length");
+                // validate declaration
+                if ty.is_some() && var_name.is_some() && length.is_some() {
+                    let ty = ty.unwrap();
+                    let var_name = var_name.unwrap();
+                    let length = length.unwrap();
+                    println!("{} {}", ty.as_str(), var_name.as_str());
+                    //
+                    let replacer = format!(
+                        "layout (location={}) {} {} {}[{}];\n",
+                        self.current_location,
+                        io,
+                        ty.as_str(),
+                        var_name.as_str(),
+                        length.as_str()
+                    );
+                    println!("{}", replacer);
+                    // emit line
+                    line_vec.push(replacer);
+                    // emit location
+                    let len = usize::from_str(length.as_str()).unwrap();
+                    let range = self.current_location..self.current_location + len;
+                    let location =
+                        Location::from_ty_name_location(var_name.as_str(), range, ty.as_str());
+                    locations.push(location);
+                    self.current_location += len;
+                }
+            } else {
+                line_vec.push(line.to_string().add("\n"))
+            }
+        }
+        let source = {
+            let mut source = String::new();
+            for line in line_vec.iter() {
+                source.push_str(&line)
+            }
+            source
+        };
+        (source, locations)
+    }
 }
