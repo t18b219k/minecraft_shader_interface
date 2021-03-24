@@ -1,137 +1,171 @@
 /// this enum store the information for uniform name and
 /// texture id
-pub enum GBuffer {
-    Texture,
-    LightMap,
-    Normals,
-    Specular,
-    Shadow(bool),
-    WaterShadow,
-    ShadowTex0,
-    ShadowTex1,
-    DepthTex0,
-    DepthTex1,
-    GAux(u8),
-    ColorTex(u8),
-    ShadowColor,
-    ShadowColor0,
-    ShadowColor1,
-    NoiseTex,
-}
 pub trait TextureId {
     fn get_id(&self) -> Option<usize>;
 }
-impl TextureId for GBuffer {
-    fn get_id(&self) -> Option<usize> {
-        match self {
-            GBuffer::Texture => Some(0),
-            GBuffer::LightMap => Some(1),
-            GBuffer::Normals => Some(2),
-            GBuffer::Specular => Some(3),
-            GBuffer::Shadow(water_shadow_enabled) => {
-                if *water_shadow_enabled {
-                    Some(5)
-                } else {
-                    Some(4)
-                }
-            }
-            GBuffer::WaterShadow => Some(4),
-            GBuffer::ShadowTex0 => Some(4),
-            GBuffer::ShadowTex1 => Some(5),
-            GBuffer::DepthTex0 => Some(6),
-            GBuffer::DepthTex1 => Some(11),
-            GBuffer::GAux(n) => match n {
-                1 => Some(7),
-                2 => Some(8),
-                3 => Some(9),
-                4 => Some(10),
-                _ => None,
-            },
-            GBuffer::ColorTex(n) => match n {
-                4 => Some(7),
-                5 => Some(8),
-                6 => Some(9),
-                7 => Some(10),
-                8 => Some(16),
-                9 => Some(17),
-                10 => Some(18),
-                11 => Some(19),
-                12 => Some(20),
-                13 => Some(21),
-                14 => Some(22),
-                15 => Some(23),
-                _ => None,
-            },
-            GBuffer::ShadowColor => Some(13),
-            GBuffer::ShadowColor0 => Some(13),
-            GBuffer::ShadowColor1 => Some(14),
-            GBuffer::NoiseTex => Some(15),
-        }
-    }
-}
-pub enum Shadow {
-    Tex,
+
+pub enum GBuffersTextures {
     Texture,
     Lightmap,
     Normals,
     Specular,
-    Shadow(bool),
-    WaterShadow,
     ShadowTex0,
     ShadowTex1,
-    GAux(u8),
-    ColorTex(u8),
-    ShadowColor,
+    DepthTex0,
+    GAux1,
+    GAux2,
+    GAux3,
+    GAux4,
+    DepthTex1,
     ShadowColor0,
     ShadowColor1,
     NoiseTex,
+    ColorTex8,
+    ColorTex9,
+    ColorTex10,
+    ColorTex11,
+    ColorTex12,
+    ColorTex13,
+    ColorTex14,
+    ColorTex15,
 }
 
-impl TextureId for Shadow {
+impl TextureId for GBuffersTextures {
     fn get_id(&self) -> Option<usize> {
         match self {
-            Shadow::Texture => Some(0),
-            Shadow::Lightmap => Some(1),
-            Shadow::Normals => Some(2),
-            Shadow::Specular => Some(3),
-            Shadow::Shadow(water_shadow_enabled) => {
-                if *water_shadow_enabled {
-                    Some(5)
-                } else {
-                    Some(4)
-                }
-            }
-            Shadow::WaterShadow => Some(4),
-            Shadow::ShadowTex0 => Some(4),
-            Shadow::ShadowTex1 => Some(5),
-
-            Shadow::GAux(n) => match n {
-                1 => Some(7),
-                2 => Some(8),
-                3 => Some(9),
-                4 => Some(10),
-                _ => None,
-            },
-            Shadow::ColorTex(n) => match n {
-                4 => Some(7),
-                5 => Some(8),
-                6 => Some(9),
-                7 => Some(10),
-                8 => Some(16),
-                9 => Some(17),
-                10 => Some(18),
-                11 => Some(19),
-                12 => Some(20),
-                13 => Some(21),
-                14 => Some(22),
-                15 => Some(23),
-                _ => None,
-            },
-            Shadow::ShadowColor => Some(13),
-            Shadow::ShadowColor0 => Some(13),
-            Shadow::ShadowColor1 => Some(14),
-            Shadow::NoiseTex => Some(15),
-            Shadow::Tex => Some(0),
+            GBuffersTextures::Texture => Some(0),
+            GBuffersTextures::Lightmap => Some(1),
+            GBuffersTextures::Normals => Some(2),
+            GBuffersTextures::Specular => Some(3),
+            GBuffersTextures::ShadowTex0 => Some(4),
+            GBuffersTextures::ShadowTex1 => Some(5),
+            GBuffersTextures::DepthTex0 => Some(6),
+            GBuffersTextures::GAux1 => Some(7),
+            GBuffersTextures::GAux2 => Some(8),
+            GBuffersTextures::GAux3 => Some(9),
+            GBuffersTextures::GAux4 => Some(10),
+            GBuffersTextures::DepthTex1 => Some(12),
+            GBuffersTextures::ShadowColor0 => Some(13),
+            GBuffersTextures::ShadowColor1 => Some(14),
+            GBuffersTextures::NoiseTex => Some(15),
+            GBuffersTextures::ColorTex8 => Some(16),
+            GBuffersTextures::ColorTex9 => Some(17),
+            GBuffersTextures::ColorTex10 => Some(18),
+            GBuffersTextures::ColorTex11 => Some(19),
+            GBuffersTextures::ColorTex12 => Some(20),
+            GBuffersTextures::ColorTex13 => Some(21),
+            GBuffersTextures::ColorTex14 => Some(22),
+            GBuffersTextures::ColorTex15 => Some(23),
         }
+    }
+}
+
+pub enum ShadowTextures {
+    Texture,
+    LightMap,
+    Normals,
+    Specular,
+    ShadowTex0,
+    ShadowTex1,
+    GAux1,
+    GAux2,
+    GAux3,
+    GAux4,
+    ShadowColor0,
+    ShadowColor1,
+    NoiseTex,
+    ColorTex8,
+    ColorTex9,
+    ColorTex10,
+    ColorTex11,
+    ColorTex12,
+    ColorTex13,
+    ColorTex14,
+    ColorTex15,
+}
+
+impl TextureId for ShadowTextures {
+    fn get_id(&self) -> Option<usize> {
+        match self {
+            ShadowTextures::Texture => Some(0),
+            ShadowTextures::LightMap => Some(1),
+            ShadowTextures::Normals => Some(2),
+            ShadowTextures::Specular => Some(3),
+            ShadowTextures::ShadowTex0 => Some(4),
+            ShadowTextures::ShadowTex1 => Some(5),
+            ShadowTextures::GAux1 => Some(7),
+            ShadowTextures::GAux2 => Some(8),
+            ShadowTextures::GAux3 => Some(9),
+            ShadowTextures::GAux4 => Some(10),
+            ShadowTextures::ShadowColor0 => Some(13),
+            ShadowTextures::ShadowColor1 => Some(14),
+            ShadowTextures::NoiseTex => Some(15),
+            ShadowTextures::ColorTex8 => Some(16),
+            ShadowTextures::ColorTex9 => Some(17),
+            ShadowTextures::ColorTex10 => Some(18),
+            ShadowTextures::ColorTex11 => Some(19),
+            ShadowTextures::ColorTex12 => Some(20),
+            ShadowTextures::ColorTex13 => Some(21),
+            ShadowTextures::ColorTex14 => Some(22),
+            ShadowTextures::ColorTex15 => Some(23),
+        }
+    }
+}
+
+pub enum CompositeAndDeferredTextures {
+    ColorTex0,
+    ColorTex1,
+    ColorTex2,
+    ColorTex3,
+    ShadowTex0,
+    ShadowTex1,
+    DepthTex0,
+    ColorTex4,
+    ColorTex5,
+    ColorTex6,
+    ColorTex7,
+    DepthTex1,
+    DepthTex2,
+    ShadowColor0,
+    ShadowColor1,
+    NoiseTex,
+    ColorTex8,
+    ColorTex9,
+    ColorTex10,
+    ColorTex11,
+    ColorTex12,
+    ColorTex13,
+    ColorTex14,
+    ColorTex15,
+}
+
+impl TextureId for CompositeAndDeferredTextures {
+    fn get_id(&self) -> Option<usize> {
+        Some(match self {
+            CompositeAndDeferredTextures::ColorTex0 => 0,
+            CompositeAndDeferredTextures::ColorTex1 => 1,
+            CompositeAndDeferredTextures::ColorTex2 => 2,
+            CompositeAndDeferredTextures::ColorTex3 => 3,
+            CompositeAndDeferredTextures::ShadowTex0 => 4,
+            CompositeAndDeferredTextures::ShadowTex1 => 5,
+            CompositeAndDeferredTextures::DepthTex0 => 6,
+            CompositeAndDeferredTextures::ColorTex4 => 7,
+            CompositeAndDeferredTextures::ColorTex5 => 8,
+            CompositeAndDeferredTextures::ColorTex6 => 9,
+            CompositeAndDeferredTextures::ColorTex7 => 10,
+            CompositeAndDeferredTextures::DepthTex1 => 11,
+            CompositeAndDeferredTextures::DepthTex2 => 12,
+            CompositeAndDeferredTextures::ShadowColor0 => 13,
+            CompositeAndDeferredTextures::ShadowColor1 => 14,
+            CompositeAndDeferredTextures::NoiseTex => 15,
+            CompositeAndDeferredTextures::ColorTex8 => 16,
+            CompositeAndDeferredTextures::ColorTex9 => 17,
+            CompositeAndDeferredTextures::ColorTex10 => 18,
+            CompositeAndDeferredTextures::ColorTex11 => 19,
+            CompositeAndDeferredTextures::ColorTex12 => 20,
+            CompositeAndDeferredTextures::ColorTex13 => 21,
+            CompositeAndDeferredTextures::ColorTex14 => 22,
+            CompositeAndDeferredTextures::ColorTex15 => 23,
+        })
     }
 }

@@ -12,6 +12,7 @@
 pub mod attribute_varying_transformer;
 pub mod directive_rewrite;
 pub mod function_rename;
+mod optifine_standard_macros;
 pub mod render_stage;
 pub mod shader_parameter;
 pub mod uniform_name_conversion;

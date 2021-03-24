@@ -1,4 +1,5 @@
 pub enum RenderStage {
+    None,
     Sky,
     Sunset,
     CustomSky,
