@@ -75,15 +75,15 @@ pub enum McGLRenderer {
 }
 #[derive(Copy, Clone, Debug)]
 pub struct McOptions {
-    fxaa_level: u8,
-    normal_map: bool,
-    specular_map: bool,
-    render_quality: f32,
-    shadow_quality: f32,
-    hand_depth: f32,
-    old_hand_light: bool,
-    old_lighting: bool,
-    anisotropic_filtering: Option<f32>,
+    pub(crate) fxaa_level: u8,
+    pub(crate) normal_map: bool,
+    pub(crate) specular_map: bool,
+    pub(crate) render_quality: f32,
+    pub(crate) shadow_quality: f32,
+    pub(crate) hand_depth: f32,
+    pub(crate) old_hand_light: bool,
+    pub(crate) old_lighting: bool,
+    pub(crate) anisotropic_filtering: Option<f32>,
 }
 #[derive(Copy, Clone, Debug)]
 pub enum McTexture {
@@ -92,14 +92,14 @@ pub enum McTexture {
 }
 
 pub struct McStandardMacroDefines {
-    version: McVersion,
-    gl_version: McGLVersion,
-    shader_version: McGLSLVersion,
-    operating_system: McOs,
-    vendor: McGLVendor,
-    renderer: McGLRenderer,
-    options: McOptions,
-    textures: Option<McTexture>,
+    pub(crate) version: McVersion,
+    pub(crate) gl_version: McGLVersion,
+    pub(crate) shader_version: McGLSLVersion,
+    pub(crate) operating_system: McOs,
+    pub(crate) vendor: McGLVendor,
+    pub(crate) renderer: McGLRenderer,
+    pub(crate) options: McOptions,
+    pub(crate) textures: Option<McTexture>,
 }
 
 impl ToString for McVersion {

@@ -38,7 +38,7 @@ impl DirectiveRewriter {
 }
 #[test]
 fn test() {
-    let source = include_str!("test_attribute.glsl");
+    let source = include_str!("../test_shader/test_attribute.glsl");
     let transformer = DirectiveRewriter::new(source);
     let source = transformer.convert();
     println!("output source:\n{}", source);

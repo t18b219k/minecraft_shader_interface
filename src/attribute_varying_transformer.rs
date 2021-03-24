@@ -165,7 +165,7 @@ impl AttributeTransformer {
 }
 #[test]
 fn test() {
-    let test_source = include_str!("test_attribute.glsl");
+    let test_source = include_str!("../test_shader/test_attribute.glsl");
     let mut transformer = AttributeTransformer::new(test_source);
     let (source, locations_vertex_input) = transformer.convert();
     println!("output source:\n{}", source);
