@@ -9,8 +9,10 @@
 //! *  uniform and buffer definitions
 //! * MRT and gl_FragColor to e.g out vec4 _gl_FragColor
 //! * rename all optifine defined uniform and attributes from camelCase to snake_case
+use crate::optifine_standard_macros::{
+    McGLRenderer, McGLSLVersion, McGLVendor, McGLVersion, McOptions, McOs, McStandardMacroDefines,
+};
 use shaderc::ShaderKind;
-use crate::optifine_standard_macros::{McGLRenderer, McGLVendor, McOs, McGLSLVersion, McGLVersion, McOptions, McStandardMacroDefines};
 
 pub mod attribute_varying_transformer;
 pub mod directive_rewrite;
@@ -20,59 +22,65 @@ pub mod render_stage;
 pub mod shader_parameter;
 pub mod uniform_name_conversion;
 pub mod uniforms;
-mod builtin_prefixer;
 
-pub fn transpile<Source:AsRef<str>>(source:Source,kind:ShaderKind,std_macro_defines:McStandardMacroDefines)->String{
-    let lines= source.as_ref().lines();
-    let mut line_stack:Vec<&str>=lines.collect();
+mod embedded_rename;
 
-    let std_macro=std_macro_defines.to_string();
-    line_stack.insert(2,&std_macro);
-    if ShaderKind::Vertex==kind {
-        let vertex_builtin_attribute_definition = include_str!("../gl_builtin/vertex_shader_builtin_attributes.glsl");
+pub fn transpile<Source: AsRef<str>>(
+    source: Source,
+    kind: ShaderKind,
+    std_macro_defines: McStandardMacroDefines,
+) -> String {
+    let lines = source.as_ref().lines();
+    let mut line_stack: Vec<&str> = lines.collect();
+
+    let std_macro = std_macro_defines.to_string();
+    line_stack.insert(2, &std_macro);
+    if ShaderKind::Vertex == kind {
+        let vertex_builtin_attribute_definition =
+            include_str!("../gl_builtin/vertex_shader_builtin_attributes.glsl");
         for line in vertex_builtin_attribute_definition.lines().rev() {
             line_stack.insert(3, line);
         }
         let compatibility = include_str!("old_gl_compat.glsl");
-        line_stack.insert(17,compatibility);
+        line_stack.insert(17, compatibility);
     }
 
-    let mut source =String::new();
+    let mut source = String::new();
 
-    for line in line_stack{
+    for line in line_stack {
         source.push_str(line);
         source.push('\n')
     }
 
     #[cfg(debug_assertions)]
-    println!("standard macro and compatibility support code inserted source:\n{}",source);
+    println!(
+        "standard macro and compatibility support code inserted source:\n{}",
+        source
+    );
 
-    match kind{
-     ShaderKind::Vertex => {
-    String::new()
-     }
-     ShaderKind::Fragment => {
-         String::new()
-     }
-     ShaderKind::Compute => {
-         String::new()
-     }
-     ShaderKind::Geometry => {
-         String::new()
-     }
-    _=>{panic!("not supported shader type ")}
- }
+    match kind {
+        ShaderKind::Vertex => String::new(),
+        ShaderKind::Fragment => String::new(),
+        ShaderKind::Compute => String::new(),
+        ShaderKind::Geometry => String::new(),
+        _ => {
+            panic!("not supported shader type ")
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::optifine_standard_macros::{McStandardMacroDefines, McOptions, McGLRenderer, McGLVendor, McOs, McGLSLVersion, McGLVersion};
+    use crate::optifine_standard_macros::{
+        McGLRenderer, McGLSLVersion, McGLVendor, McGLVersion, McOptions, McOs,
+        McStandardMacroDefines,
+    };
     use crate::transpile;
     use shaderc::ShaderKind;
 
     #[test]
     fn it_works() {
-        let vulkan_environment_std =McStandardMacroDefines{
+        let vulkan_environment_std = McStandardMacroDefines {
             version: Default::default(),
             gl_version: McGLVersion::GL450,
             shader_version: McGLSLVersion::GLSL450,
@@ -88,11 +96,11 @@ mod tests {
                 hand_depth: 0.25,
                 old_hand_light: false,
                 old_lighting: false,
-                anisotropic_filtering: None
+                anisotropic_filtering: None,
             },
-            textures: None
+            textures: None,
         };
-        let source =include_str!("../test_shader/final.vsh");
-        let source=transpile(source,ShaderKind::Vertex,vulkan_environment_std);
+        let source = include_str!("../test_shader/final.vsh");
+        let source = transpile(source, ShaderKind::Vertex, vulkan_environment_std);
     }
 }
