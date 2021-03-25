@@ -323,7 +323,7 @@ impl ToString for McTexture {
         .to_string()
     }
 }
-const RENDER_STAGE: &'static str = include_str!("McRenderStageDefine.h");
+const RENDER_STAGE: &'static str = include_str!("../optifine_builtin/McRenderStageDefine.h");
 impl ToString for McStandardMacroDefines {
     fn to_string(&self) -> String {
         format!(

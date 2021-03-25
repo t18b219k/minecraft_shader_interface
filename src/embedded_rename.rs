@@ -20,15 +20,15 @@ impl<'a> BuiltinRename<'a> {
         let regex = regex::Regex::new(r"gl_[a-zA-Z]+").unwrap();
 
         let mut allow_list = HashSet::new();
-        let clone_src=source.clone();
+        let clone_src = source.clone();
         for captures in regex.captures_iter(&clone_src) {
             for capture in captures.iter() {
                 match capture {
                     None => {}
                     Some(mach) => {
-                        println!("{}",mach.as_str());
+                        println!("{}", mach.as_str());
                         if !self.exclude_list.contains(mach.as_str()) {
-                            println!("we replace {}",mach.as_str());
+                            println!("we replace {}", mach.as_str());
                             allow_list.insert(mach.as_str());
                         }
                     }
@@ -37,7 +37,7 @@ impl<'a> BuiltinRename<'a> {
         }
         for target in allow_list {
             let replacer = format!("_{}", target);
-            source=source.replace(target,&replacer);
+            source = source.replace(target, &replacer);
         }
         source
     }

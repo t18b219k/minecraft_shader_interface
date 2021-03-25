@@ -4,8 +4,8 @@
 //! *  add some compatibility function like ftransform
 //! *  insert #extension GL_GOOGLE_include_directive:enable to enable include
 //! *  rename eliminated gl gl_builtin variable  to _ prefix like _gl_ModelViewProjection
-//! *  all uniform and variable declarations
-//! *  old gl emulation Uniforms and variables such as gl_ModelViewProjection
+//! *  remove all uniform and variable declarations
+//! * insert old gl emulation Uniforms and variables such as gl_ModelViewProjection
 //! *  uniform and buffer definitions
 //! * MRT and gl_FragColor to e.g out vec4 _gl_FragColor
 //! * rename all optifine defined uniform and attributes from camelCase to snake_case
@@ -41,7 +41,7 @@ pub fn transpile<Source: AsRef<str>>(
         for line in vertex_builtin_attribute_definition.lines().rev() {
             line_stack.insert(3, line);
         }
-        let compatibility = include_str!("old_gl_compat.glsl");
+        let compatibility = include_str!("../gl_builtin/vertex_old_gl_compat.glsl");
         line_stack.insert(17, compatibility);
     }
 
